@@ -27,7 +27,6 @@ def extract_price_value(price_string):
     if not price_string or price_string == "Price not available":
         return None
 
-    # Remove currency symbols and extract numbers
     import re
     numbers = re.findall(r'[\d,]+\.?\d*', str(price_string).replace(',', ''))
     if numbers:
@@ -49,7 +48,6 @@ def filter_results_by_price(results, min_price=None, max_price=None):
         price_value = extract_price_value(price_str)
 
         if price_value is None:
-            # Include items without price info if user wants to see them
             continue
 
         include_item = True
@@ -68,7 +66,6 @@ def display_results(results, show_price_stats=True):
     if not results:
         return
 
-    # Show price statistics
     if show_price_stats and len(results) > 1:
         prices = []
         for item in results:
@@ -98,7 +95,6 @@ def display_results(results, show_price_stats=True):
                 </div>
             </div>
             """, unsafe_allow_html=True)
-    # Create a responsive grid layout
     cols_per_row = 2
     for i in range(0, len(results[:6]), cols_per_row):
         cols = st.columns(cols_per_row)
@@ -106,7 +102,6 @@ def display_results(results, show_price_stats=True):
             if i + j < len(results):
                 item = results[i + j]
                 with col:
-                    # Card container with better styling
                     with st.container():
                         st.markdown("""
                         <div style='
@@ -119,7 +114,6 @@ def display_results(results, show_price_stats=True):
                         '>
                         """, unsafe_allow_html=True)
 
-                        # Image section
                         img = item.get("thumbnail")
                         if img:
                             st.markdown(f"""
@@ -149,7 +143,6 @@ def display_results(results, show_price_stats=True):
                             </div>
                             """, unsafe_allow_html=True)
 
-                        # Title
                         title = item.get("title", "No title")
                         st.markdown(f"""
                         <h4 style='
@@ -163,7 +156,6 @@ def display_results(results, show_price_stats=True):
                         '>{title}</h4>
                         """, unsafe_allow_html=True)
 
-                        # Price
                         price = item.get("price", "Price not available")
                         st.markdown(f"""
                         <div style='
@@ -183,10 +175,8 @@ def display_results(results, show_price_stats=True):
                         </div>
                         """, unsafe_allow_html=True)
 
-                        # Purchase link - try multiple link fields
                         link = item.get("link") or item.get("product_link") or item.get("serpapi_product_api")
 
-                        # Also check for source info
                         source = item.get("source", "")
 
                         if link and link != "#":
@@ -234,7 +224,6 @@ def display_results(results, show_price_stats=True):
 
 
 def main():
-    # Page configuration
     st.set_page_config(
         page_title="SnipeStyle - Fashion Search",
         page_icon="🎯",
@@ -242,7 +231,6 @@ def main():
         initial_sidebar_state="collapsed"
     )
 
-    # Custom CSS for better styling
     st.markdown("""
     <style>
     .main > div {
@@ -317,7 +305,6 @@ def main():
     </style>
     """, unsafe_allow_html=True)
 
-    # Header section
     st.markdown("""
     <div class='search-header'>
         <h1 style='
@@ -346,14 +333,12 @@ def main():
     </div>
     """, unsafe_allow_html=True)
 
-    # Search form with price filters
     st.markdown("<div class='search-form'>", unsafe_allow_html=True)
     st.markdown(
         "<h3 style='color: #2e7d32; text-align: center; margin-bottom: 20px; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);'>🔍 Search for Fashion Items</h3>",
         unsafe_allow_html=True)
 
     with st.form("search_form", clear_on_submit=False):
-        # Search terms
         st.markdown("<h4 style='color: #d32f2f; margin-bottom: 15px;'>🛍️ What are you looking for?</h4>",
                     unsafe_allow_html=True)
         col1, col2, col3 = st.columns(3)
@@ -371,7 +356,6 @@ def main():
             q3 = st.text_input("Search term 3", placeholder="e.g., luxury handbag", key="query_3")
             if q3: queries.append(q3.strip())
 
-        # Price filters
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown("<h4 style='color: #d32f2f; margin-bottom: 15px;'>💰 Price Range (Optional)</h4>",
                     unsafe_allow_html=True)
@@ -399,7 +383,6 @@ def main():
             )
 
         with price_col3:
-            # Quick filter buttons
             st.markdown("<label style='color: #2e7d32; font-weight: bold;'>Quick Filters:</label>",
                         unsafe_allow_html=True)
             budget_filter = st.selectbox(
@@ -408,7 +391,6 @@ def main():
                 key="budget_filter"
             )
 
-        # Apply budget filter
         if budget_filter != "Custom":
             if budget_filter == "Under $25":
                 min_price, max_price = 0, 25
@@ -428,9 +410,7 @@ def main():
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Results section
     if submitted and queries:
-        # Show active filters
         if min_price > 0 or max_price < 1000:
             st.markdown(f"""
             <div style='
@@ -467,12 +447,10 @@ def main():
                 results = fetch_fashion_items(query)
 
             if results:
-                # Apply price filter
                 filtered_results = filter_results_by_price(results, min_price if min_price > 0 else None,
                                                            max_price if max_price < 1000 else None)
 
                 if filtered_results:
-                    # Show filter stats
                     if len(filtered_results) != len(results):
                         st.markdown(f"""
                         <div style='
@@ -522,7 +500,6 @@ def main():
     elif submitted and not queries:
         st.warning("Please enter at least one search term!")
 
-    # Footer
     st.markdown("""
     <div style='
         text-align: center;
